@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Benefactor, Charity, Task
 
-# Register your models here.
+
+admin.site.register(Benefactor)
+admin.site.register(Charity)
+admin.site.register(Task)
