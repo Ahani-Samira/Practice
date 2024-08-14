@@ -15,3 +15,6 @@ class User(AbstractUser):
             ('F', 'Female'),
         ])
     phone = models.CharField(max_length=15, blank=True, null=True)
+
+    def __str__(self):
+        return ""
