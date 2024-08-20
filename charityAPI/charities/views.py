@@ -1,3 +1,4 @@
+from django.utils.log import request_logger
 from rest_framework import status, generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
@@ -5,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import IsCharityOwner, IsBenefactor
-from charities.models import Task
+from charities.models import Task, Benefactor
 from charities.serializers import (
     TaskSerializer, CharitySerializer, BenefactorSerializer
 )
@@ -67,7 +68,17 @@ class Tasks(generics.ListCreateAPIView):
 
 
 class TaskRequest(APIView):
-    pass
+    permission_classes = (IsBenefactor,)
+
+    def get(self,request, task_id ):
+        task = get_object_or_404(Task, pk=task_id)
+        if task.state is not 'P':
+            data = {'detail': 'This task is not pending.'}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+        benefactor = get_object_or_404(Benefactor, user=request.user)
+        task.assign_to_benefactor(benefactor)
+        data = {'detail': 'Request sent.'}
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class TaskResponse(APIView):
